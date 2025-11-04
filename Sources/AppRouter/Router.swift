@@ -8,37 +8,37 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
     
     // MARK: - Private Properties
     
-    /// Navigation paths for each tab
+    /// Navigation paths for each tab.
     private var paths: [Tab: [Destination]] = [:]
     
-    /// Sheet paths for each inner sheet
+    /// Sheet paths for each inner sheet.
     public var sheetPaths: [Sheet] = []
     
     // MARK: - Public Properties
     
-    /// The currently selected tab
+    /// The currently selected tab.
     public var selectedTab: Tab
     
-    /// The currently presented sheet, if any
+    /// The currently presented sheet, if any.
     public var presentedSheet: Sheet?
     
     // MARK: - Initialization
     
     /// Creates a new router with the specified initial tab.
-    /// - Parameter initialTab: The tab to select when the router is created
+    /// - Parameter initialTab: The tab to select when the router is created.
     public init(initialTab: Tab) {
         self.selectedTab = initialTab
     }
     
     // MARK: - Path Access
     
-    /// Subscript access to navigation paths for each tab
+    /// Subscript access to navigation paths for each tab.
     public subscript(tab: Tab) -> [Destination] {
         get { paths[tab] ?? [] }
         set { paths[tab] = newValue }
     }
     
-    /// The navigation path for the currently selected tab
+    /// The navigation path for the currently selected tab.
     public var selectedTabPath: [Destination] {
         paths[selectedTab] ?? []
     }
@@ -47,15 +47,20 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
     
     /// Pops the navigation stack to the root for the specified tab (or current tab if nil).
     /// - Parameter tab: The tab to pop to root. If nil, uses the currently selected tab.
-    public func popToRoot(for tab: Tab? = nil) {
+    public func popToNavRoot(for tab: Tab? = nil) {
         paths[tab ?? selectedTab] = []
+    }
+    
+    /// Pops the sheet navigation stack to the root.
+    public func popToSheetRoot() {
+        sheetPaths.removeAll()
     }
     
     /// Pops all the navigation stack for both sheets and navigation.
     public func popToAllRoots(for tab: Tab? = nil) {
         dismissSheet()
-        sheetPaths.removeAll()
-        paths[tab ?? selectedTab] = []
+        popToSheetRoot()
+        popToNavRoot(for: tab)
     }
     
     /// Pops the last destination from the navigation stack for the specified tab.
@@ -83,7 +88,7 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
     // MARK: - Sheet Methods
     
     /// Presents the specified sheet.
-    /// - Parameter sheet: The sheet to present
+    /// - Parameter sheet: The sheet to present.
     public func presentSheet(_ sheet: Sheet) {
         if presentedSheet == nil {
             presentedSheet = sheet
@@ -99,9 +104,9 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
     
     // MARK: - URL Routing Methods
     
-    /// Navigates to a URL by parsing its components and routing accordingly
-    /// - Parameter url: The URL to navigate to
-    /// - Returns: True if the URL was successfully routed, false otherwise
+    /// Navigates to a URL by parsing its components and routing accordingly.
+    /// - Parameter url: The URL to navigate to.
+    /// - Returns: True if the URL was successfully routed, false otherwise.
     @discardableResult
     public func navigate(to url: URL) -> Bool {
         return URLNavigationHelper.navigate(url: url) { destinations in
@@ -109,9 +114,9 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
         }
     }
     
-    /// Navigates to a URL string by parsing its components and routing accordingly
-    /// - Parameter urlString: The URL string to navigate to
-    /// - Returns: True if the URL was successfully routed, false otherwise
+    /// Navigates to a URL string by parsing its components and routing accordingly.
+    /// - Parameter urlString: The URL string to navigate to.
+    /// - Returns: True if the URL was successfully routed, false otherwise.
     @discardableResult
     public func navigate(to urlString: String) -> Bool {
         guard let url = URL(string: urlString) else {
