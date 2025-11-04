@@ -12,7 +12,7 @@ public final class Router<Tab: TabType, Destination: DestinationType, Sheet: She
     private var paths: [Tab: [Destination]] = [:]
     
     /// Sheet paths for each inner sheet
-    private var sheetPaths: [Sheet] = []
+    public var sheetPaths: [Sheet] = []
     
     // MARK: - Public Properties
     
